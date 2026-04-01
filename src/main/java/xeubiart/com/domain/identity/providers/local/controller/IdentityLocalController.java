@@ -12,16 +12,22 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
+import xeubiart.com.domain.identity.providers.local.dto.AuthCheckOutputDTO;
 import xeubiart.com.domain.identity.providers.local.dto.LoginRequestDTO;
+import xeubiart.com.domain.identity.service.IdentityService;
+import xeubiart.com.domain.user.model.User;
+
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/public/auth")
+@RequestMapping("/api")
 @AllArgsConstructor
 public class IdentityLocalController {
     private final AuthenticationManager authenticationManager;
     private final SecurityContextRepository securityContextRepository;
+    private final IdentityService identityService;
 
-    @PostMapping("/login")
+    @PostMapping("/public/auth/login")
     public ResponseEntity<String> login(@Valid @RequestBody LoginRequestDTO dto, HttpServletRequest request, HttpServletResponse response){
         UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(
                 dto.getEmail(),   // Spring treats it internally as username, even though is the email...
@@ -41,5 +47,18 @@ public class IdentityLocalController {
 
         return ResponseEntity.ok()
                 .build();
+    }
+
+    @GetMapping("/private/auth/status")
+    public ResponseEntity<AuthCheckOutputDTO> checkStatus(Authentication authentication){
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.ok(new AuthCheckOutputDTO(null));
+        }
+
+        String username = identityService.findByEmail(authentication.getName())
+                .map(User::getName)
+                .orElse(null);
+
+        return ResponseEntity.ok(new AuthCheckOutputDTO(username));
     }
 }

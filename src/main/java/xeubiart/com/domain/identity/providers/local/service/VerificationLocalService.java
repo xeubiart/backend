@@ -28,7 +28,7 @@ public class VerificationLocalService {
     private EmailSenderService emailSender;
     // TODO: generate HTML to email by the frontend engine
 
-    @Value("${app.feature.send-emails:false}")
+    @Value("${app.feature.send-emails}")
     private boolean isEmailEnabled;
 
     @Transactional
