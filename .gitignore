@@ -28,3 +28,5 @@ build/
 !**/src/test/**/build/
 
 **/db_data/
+**.env
+.idea
