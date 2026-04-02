@@ -48,4 +48,8 @@ public abstract class Identity implements UserDetails, Serializable {
         return this.email;
     }
 
+    public String getUserName(){
+        return this.user.getName();
+    }
+
 }

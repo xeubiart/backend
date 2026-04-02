@@ -8,10 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
+import xeubiart.com.domain.identity.model.Identity;
 import xeubiart.com.domain.identity.providers.local.dto.AuthCheckOutputDTO;
 import xeubiart.com.domain.identity.providers.local.dto.LoginRequestDTO;
 import xeubiart.com.domain.identity.service.IdentityService;
@@ -50,15 +52,7 @@ public class IdentityLocalController {
     }
 
     @GetMapping("/private/auth/status")
-    public ResponseEntity<AuthCheckOutputDTO> checkStatus(Authentication authentication){
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.ok(new AuthCheckOutputDTO(null));
-        }
-
-        String username = identityService.findByEmail(authentication.getName())
-                .map(User::getName)
-                .orElse(null);
-
-        return ResponseEntity.ok(new AuthCheckOutputDTO(username));
+    public ResponseEntity<AuthCheckOutputDTO> checkStatus(@AuthenticationPrincipal Identity identity){
+        return ResponseEntity.ok(new AuthCheckOutputDTO(identity.getUserName()));
     }
 }
