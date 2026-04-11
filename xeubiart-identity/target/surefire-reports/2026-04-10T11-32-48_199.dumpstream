@@ -1,0 +1,5 @@
+# Created at 2026-04-10T11:32:48.287
+Boot Manifest-JAR contains absolute paths in classpath 'P:\practices\spring\xeubiart\xeubiart-identity\target\test-classes'
+Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+'other' has different root
+

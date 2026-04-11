@@ -1,0 +1,3 @@
+com\xeubiart\identity\common\factory\FactoryIdentityTest.class
+com\xeubiart\identity\providers\local\service\IdentityLocalServiceTest.class
+com\xeubiart\identity\service\IdentityServiceTest.class
