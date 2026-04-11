@@ -78,4 +78,14 @@ public class AccountServiceImpl implements AccountService{
     public void newCode(String token) {
         this.identityService.newCode(token);
     }
+
+    @Override
+    public UUID getAccountIdFromSession() {
+        return this.identityService.getAccountIdFromSession();
+    }
+
+    @Override
+    public Account findById(UUID id) {
+        return this.accountRepository.findById(id).orElse(null);
+    }
 }

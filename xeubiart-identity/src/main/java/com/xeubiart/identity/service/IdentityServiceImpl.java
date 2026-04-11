@@ -1,5 +1,6 @@
 package com.xeubiart.identity.service;
 
+import com.xeubiart.identity.entity.Identity;
 import com.xeubiart.identity.exceptions.IdentityConflictException;
 import com.xeubiart.identity.exceptions.IdentityInvalidCredentialsException;
 import com.xeubiart.identity.exceptions.InvalidProviderException;
@@ -15,6 +16,7 @@ import com.xeubiart.verification.exceptions.BadVerificationException;
 import com.xeubiart.verification.service.VerificationService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -91,6 +93,22 @@ public class IdentityServiceImpl implements IdentityService {
     @Override
     public void newCode(String token) {
         this.verificationService.generateNew(token);
+    }
+
+    @Override
+    public UUID getAccountIdFromSession() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth != null && auth.isAuthenticated()) {
+            String name = auth.getName();
+            try {
+                return UUID.fromString(name);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        }
+
+        return null;
     }
 
     // Transform sideEffects into webActions

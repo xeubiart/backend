@@ -59,7 +59,7 @@ public class IdentityLocal extends Identity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return this.verified;
+        return this.active;
     }
 }
 

@@ -32,12 +32,12 @@ public abstract class Identity implements java.io.Serializable {
     protected IdentityType provider;
 
     @Builder.Default
-    protected boolean verified = false;
+    protected boolean active = false;
 
     public abstract IdentityType getProvider();
 
     public void markAsVerified(){
-        this.verified = true;
+        this.active = true;
     }
 }
 

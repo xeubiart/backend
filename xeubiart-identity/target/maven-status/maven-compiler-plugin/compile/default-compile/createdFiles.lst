@@ -1,16 +1,19 @@
 com\xeubiart\identity\providers\local\entity\IdentityLocal$IdentityLocalBuilderImpl.class
 com\xeubiart\identity\service\IdentityServiceImpl.class
 com\xeubiart\identity\side_effects\RedirectSideEffect.class
+com\xeubiart\verification\exceptions\VerificationException.class
 com\xeubiart\verification\repository\VerificationRepository.class
 com\xeubiart\identity\side_effects\RequireVerificationSideEffect.class
 com\xeubiart\identity\side_effects\SetCookieSideEffect.class
 com\xeubiart\identity\providers\local\entity\IdentityLocal$IdentityLocalBuilder.class
+com\xeubiart\verification\exceptions\VerificationAttemptsExceededException.class
 com\xeubiart\identity\entity\Identity.class
 com\xeubiart\identity\providers\local\mapper\IdentityLocalMapper.class
 com\xeubiart\verification\entity\VerificationSession.class
 com\xeubiart\identity\providers\local\service\IdentityLocalServiceImpl.class
 com\xeubiart\identity\model\dto\IdentityInputDTO$IdentityInputDTOBuilder.class
 com\xeubiart\identity\config\RedisSessionConfig.class
+com\xeubiart\identity\side_effects\DeleteCookieSideEffect.class
 com\xeubiart\verification\entity\VerificationSession$VerificationSessionBuilder.class
 com\xeubiart\identity\providers\local\model\dto\IdentityLocalInputDTO.class
 com\xeubiart\identity\side_effects\SessionSideEffect.class
@@ -24,6 +27,7 @@ com\xeubiart\verification\service\VerificationServiceImpl.class
 com\xeubiart\identity\providers\local\entity\IdentityLocal.class
 com\xeubiart\identity\side_effects\SideEffect.class
 com\xeubiart\identity\providers\local\model\dto\IdentityLocalInputDTO$IdentityLocalInputDTOBuilder.class
+com\xeubiart\verification\exceptions\VerificationReSendCooldownException.class
 com\xeubiart\identity\providers\local\config\IdentityLocalJacksonConfig.class
 com\xeubiart\identity\service\IdentityService.class
 com\xeubiart\identity\providers\local\mapper\IdentityLocalMapperImpl.class

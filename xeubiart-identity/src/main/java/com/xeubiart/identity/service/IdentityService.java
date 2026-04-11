@@ -15,4 +15,6 @@ public interface IdentityService {
     List<SideEffect> login(UUID account_id, IdentityInputDTO identityDTO) throws IdentityInvalidCredentialsException;
     boolean verify(String token, String code);
     void newCode(String token);
+
+    UUID getAccountIdFromSession();
 }

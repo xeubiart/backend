@@ -35,6 +35,7 @@ public class SideEffectProcessor {
                 // shouldn't reach here after IdentityServiceImpl transforms it,
                 // but handle defensively
                 throw new IllegalStateException("RequireVerificationSideEffect should have been resolved");
+            default -> throw new IllegalStateException("Unexpected value: " + effect);
         }
     }
 

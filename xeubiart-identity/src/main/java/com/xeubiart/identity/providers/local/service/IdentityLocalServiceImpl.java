@@ -41,6 +41,7 @@ public class IdentityLocalServiceImpl implements IdentityProvider<IdentityLocalI
         IdentityLocal entity = this.identityLocalMapper.toEntity(identityDTO);
         entity.setAccountId(accountId);
         entity.setPassword(this.passwordEncoder.encode(entity.getPassword()));
+        entity.setActive(false);
         entity.setProvider(IdentityType.LOCAL);
 
         try {
@@ -58,12 +59,13 @@ public class IdentityLocalServiceImpl implements IdentityProvider<IdentityLocalI
         IdentityLocal identityLocal = identityLocalRepository.findByAccountId(accountId)
                 .orElseThrow(IdentityInvalidCredentialsException::new);
 
-        if(!identityLocal.isVerified()) throw new IdentityInvalidCredentialsException();
+        if(!identityLocal.isActive()) throw new IdentityInvalidCredentialsException();
 
         if(!this.passwordEncoder.matches(identityDTO.getPassword(), identityLocal.getPassword())){
             throw new IdentityInvalidCredentialsException();
         }
 
+        // Change it from the whole LocalIdentity, to a DTO or something
         return List.of(new SessionSideEffect(identityLocal));
     }
 
@@ -78,7 +80,7 @@ public class IdentityLocalServiceImpl implements IdentityProvider<IdentityLocalI
         IdentityLocal identityLocal = identityLocalRepository.findByAccountId(accountId)
                 .orElseThrow(IdentityInvalidCredentialsException::new);
 
-        identityLocal.setVerified(true);
+        identityLocal.setActive(true);
     }
 
     @Override
