@@ -32,7 +32,7 @@ COPY xeubiart-core/src ./xeubiart-core/src
 
 # 6. Build the project
 # This triggers the Maven Reactor to build modules in the correct order (core -> identity -> app)
-RUN mvn clean package -DskipTests
+RUN mvn clean install -DskipTests
 
 # Stage 3: Runtime environment
 FROM eclipse-temurin:21-jre-alpine
