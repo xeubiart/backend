@@ -11,8 +11,9 @@ WORKDIR /app
 COPY pom.xml .
 COPY xeubiart-app/pom.xml ./xeubiart-app/
 COPY xeubiart-identity/pom.xml ./xeubiart-identity/
+COPY xeubiart-core/pom.xml ./xeubiart-core
 
-RUN mvn dependency:go-offline -B || true
+RUN mvn dependency:go-offline -B
 
 # 2. Create the proto directory inside the SPECIFIC module
 RUN mkdir -p xeubiart-app/src/main/resources/proto
@@ -23,6 +24,7 @@ COPY --from=proto-stage /proto-repo/proto/userService.proto ./xeubiart-app/src/m
 # 4. Copy the actual source folders for each module
 COPY xeubiart-app/src ./xeubiart-app/src
 COPY xeubiart-identity/src ./xeubiart-identity/src
+COPY xeubiart-core/src ./xeubiart-core/src
 
 # 5. Build
 RUN mvn package -DskipTests

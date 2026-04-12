@@ -1,9 +1,9 @@
 package com.xeubiart.account.exceptions;
 
-import com.xeubiart.infra.exceptions.ApplicationException;
+import com.xeubiart.core.exceptions.ApplicationException;
 
 public class AccountInvalidCredentialsException extends ApplicationException {
     public AccountInvalidCredentialsException(String message) {
-        super(message, "INVALID_CREDENTIALS");
+        super(message, "INVALID_CREDENTIALS", 401);
     }
 }

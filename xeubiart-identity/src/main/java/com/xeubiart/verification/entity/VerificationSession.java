@@ -1,11 +1,14 @@
 package com.xeubiart.verification.entity;
 
 import com.xeubiart.identity.model.IdentityType;
+import com.xeubiart.verification.exceptions.BadVerificationException;
+import com.xeubiart.verification.exceptions.VerificationAttemptsExceededException;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @RedisHash("verification_session")
@@ -25,16 +28,27 @@ public class VerificationSession {
     @Builder.Default
     private int attempts = 0;
 
-    public void registerWrongAttempt(){
-        this.attempts++;
-    }
+    @Builder.Default
+    private Instant lastSentAt = Instant.now();
 
-    public boolean isAttemptsExceeded(){
-        return this.attempts >= 3;
-    }
-
-    // Bugged
     public boolean canSendNewCode(){
-        return this.ttl <= 900L - 60L;
+        return this.lastSentAt.plusSeconds(60).isBefore(Instant.now());
+    }
+
+    public void changeCode(String code){
+        this.code = code;
+        this.lastSentAt = Instant.now();
+        this.attempts = 0;
+    }
+
+    public void validate(String inputCode) throws BadVerificationException, VerificationAttemptsExceededException {
+        if (this.attempts >= 3) {
+            throw new VerificationAttemptsExceededException();
+        }
+
+        if (!this.code.equals(inputCode)) {
+            this.attempts++;
+            throw new BadVerificationException("Invalid code");
+        }
     }
 }

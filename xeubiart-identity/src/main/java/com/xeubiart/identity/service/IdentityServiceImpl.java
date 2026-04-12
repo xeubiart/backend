@@ -6,19 +6,14 @@ import com.xeubiart.identity.exceptions.IdentityInvalidCredentialsException;
 import com.xeubiart.identity.exceptions.InvalidProviderException;
 import com.xeubiart.identity.model.IdentityType;
 import com.xeubiart.identity.model.dto.IdentityInputDTO;
+import com.xeubiart.identity.model.dto.IdentityPrincipal;
 import com.xeubiart.identity.providers.IdentityProvider;
-import com.xeubiart.identity.side_effects.SessionSideEffect;
-import com.xeubiart.identity.side_effects.SetCookieSideEffect;
-import com.xeubiart.identity.side_effects.SideEffect;
-import com.xeubiart.identity.side_effects.RequireVerificationSideEffect;
-import com.xeubiart.verification.entity.VerificationSession;
+import com.xeubiart.identity.side_effects.*;
 import com.xeubiart.verification.exceptions.BadVerificationException;
+import com.xeubiart.verification.exceptions.VerificationAttemptsExceededException;
+import com.xeubiart.verification.model.dto.VerificationVerifyOutputDTO;
 import com.xeubiart.verification.service.VerificationService;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +27,9 @@ import java.util.stream.Collectors;
 public class IdentityServiceImpl implements IdentityService {
     private final Map<IdentityType, IdentityProvider<?>> providers;
     private final VerificationService verificationService;
+
+    @Value("${server.servlet.verification.cookie.name}")
+    private String verificationCookieName;
 
     @SuppressWarnings("unchecked")
     public IdentityServiceImpl(List<IdentityProvider<?>> providers, VerificationService verificationService) {
@@ -81,34 +79,25 @@ public class IdentityServiceImpl implements IdentityService {
     }
 
     @Override
-    public boolean verify(String token, String code) {
-        VerificationSession verification = this.verificationService.verify(token, code);
-        if(verification != null){
-            this.providers.get(verification.getProvider()).markAsVerified(verification.getAccountId());
-            return true;
-        }
-        return false;
+    public List<SideEffect> verify(String token, String code) throws BadVerificationException, VerificationAttemptsExceededException {
+        VerificationVerifyOutputDTO verificationOutput = this.verificationService.verify(token, code);
+
+        IdentityProvider<?> provider = this.providers.get(verificationOutput.getProvider());
+
+        provider.markAsVerified(verificationOutput.getAccountId());
+        Identity identity = provider.getIdentityLocal(verificationOutput.getAccountId());
+
+        IdentityPrincipal identityPrincipal = IdentityPrincipal.builder()
+                .accountId(identity.getAccountId())
+                // .authorities() should be set in the SessionSideEffect resolver
+                .build();
+
+        return List.of(new DeleteCookieSideEffect(this.verificationCookieName), new SessionSideEffect(identityPrincipal));
     }
 
     @Override
     public void newCode(String token) {
         this.verificationService.generateNew(token);
-    }
-
-    @Override
-    public UUID getAccountIdFromSession() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        if (auth != null && auth.isAuthenticated()) {
-            String name = auth.getName();
-            try {
-                return UUID.fromString(name);
-            } catch (IllegalArgumentException e) {
-                return null;
-            }
-        }
-
-        return null;
     }
 
     // Transform sideEffects into webActions
@@ -117,7 +106,7 @@ public class IdentityServiceImpl implements IdentityService {
             case SessionSideEffect s -> s;
             case RequireVerificationSideEffect v -> {
                 String cookie = this.verificationService.generate(accountId, provider);
-                yield new SetCookieSideEffect("verify-token", cookie);
+                yield new SetCookieSideEffect(this.verificationCookieName, cookie);
             }
             default -> sideEffect;
         };

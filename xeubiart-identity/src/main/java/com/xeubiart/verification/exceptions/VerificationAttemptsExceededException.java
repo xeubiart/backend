@@ -1,7 +1,9 @@
 package com.xeubiart.verification.exceptions;
 
-public class VerificationAttemptsExceededException extends VerificationException {
+import com.xeubiart.core.exceptions.ApplicationException;
+
+public class VerificationAttemptsExceededException extends ApplicationException {
     public VerificationAttemptsExceededException() {
-        super("Too many failed attempts. Request a new verification code.");
+        super("Verification attempts exceeded. Please try again later.", "ERR_VERIFICATION_ATTEMPTS_EXCEEDED", 429);
     }
 }

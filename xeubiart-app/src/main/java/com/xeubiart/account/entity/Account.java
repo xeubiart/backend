@@ -1,9 +1,7 @@
 package com.xeubiart.account.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.xeubiart.account.model.AccountRole;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
 
@@ -19,4 +17,8 @@ public class Account {
     @Email
     @NonNull
     private String email;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private AccountRole role = AccountRole.USER;
 }

@@ -3,6 +3,7 @@ package com.xeubiart.identity.providers;
 import com.xeubiart.identity.exceptions.IdentityConflictException;
 import com.xeubiart.identity.model.IdentityType;
 import com.xeubiart.identity.model.dto.IdentityInputDTO;
+import com.xeubiart.identity.providers.local.entity.IdentityLocal;
 import com.xeubiart.identity.side_effects.SideEffect;
 
 import java.util.List;
@@ -14,4 +15,5 @@ public interface IdentityProvider<T extends IdentityInputDTO> {
 
     IdentityType getSupportedProvider();
     void markAsVerified(UUID accountId);
+    IdentityLocal getIdentityLocal(UUID accountId);
 }

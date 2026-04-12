@@ -1,7 +1,7 @@
 package com.xeubiart.identity.side_effects;
 
-import org.springframework.security.core.userdetails.UserDetails;
+import com.xeubiart.identity.model.dto.IdentityPrincipal;
 
 public record SessionSideEffect(
-    UserDetails principal
+    IdentityPrincipal principal
 ) implements SideEffect {}

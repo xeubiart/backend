@@ -1,7 +1,9 @@
 package com.xeubiart.identity.exceptions;
 
-public class IdentityInvalidCredentialsException extends IdentityException {
+import com.xeubiart.core.exceptions.ApplicationException;
+
+public class IdentityInvalidCredentialsException extends ApplicationException {
     public IdentityInvalidCredentialsException() {
-        super("Invalid credentials:");
+        super("Invalid credentials", "ERR_INVALID_CREDENTIALS", 401);
     }
 }

@@ -5,6 +5,7 @@ import com.xeubiart.verification.entity.VerificationSession;
 import com.xeubiart.verification.exceptions.BadVerificationException;
 import com.xeubiart.verification.exceptions.VerificationAttemptsExceededException;
 import com.xeubiart.verification.exceptions.VerificationReSendCooldownException;
+import com.xeubiart.verification.model.dto.VerificationVerifyOutputDTO;
 import com.xeubiart.verification.repository.VerificationRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,16 +23,9 @@ public class VerificationServiceImpl implements VerificationService{
     public String generate(UUID accountId, IdentityType provider) {
         String sessionToken = UUID.randomUUID().toString();
 
-        SecureRandom random = new SecureRandom();
-        int number = 100000 + random.nextInt(900000);
-        String code = String.valueOf(number);
-
-        // TODO turn this into a mail sender service
-        System.out.println(code);
-
         VerificationSession session = VerificationSession.builder()
                 .sessionToken(sessionToken)
-                .code(code)
+                .code(this.generateCode())
                 .provider(provider)
                 .accountId(accountId)
                 .build();
@@ -43,27 +37,26 @@ public class VerificationServiceImpl implements VerificationService{
 
     @Override
     @Transactional
-    public VerificationSession verify(String sessionToken, String code) throws BadVerificationException, VerificationAttemptsExceededException {
+    public VerificationVerifyOutputDTO verify(String sessionToken, String code) throws BadVerificationException, VerificationAttemptsExceededException {
         VerificationSession session = this.verificationRepository.findById(sessionToken)
                 .orElseThrow(() -> new BadVerificationException("Session not found"));
 
-        if(session.getCode().equals(code)){
+        try {
+            session.validate(code);
+            VerificationVerifyOutputDTO verificationOutput = VerificationVerifyOutputDTO.builder()
+                    .provider(session.getProvider())
+                    .accountId(session.getAccountId())
+                    .build();
             this.erase(sessionToken);
-            return session;
+            return verificationOutput;
+        } catch (BadVerificationException e) {
+            this.verificationRepository.save(session);
+            throw e;
         }
-
-        session.registerWrongAttempt();
-        if(session.isAttemptsExceeded()){
-            this.erase(sessionToken);
-            throw new VerificationAttemptsExceededException();
-        }
-        this.verificationRepository.save(session);
-
-        return null;
     }
 
     @Override
-    public void erase(String sessionToken) throws BadVerificationException {
+    public void erase(String sessionToken) {
         this.verificationRepository.deleteById(sessionToken);
     }
 
@@ -75,9 +68,18 @@ public class VerificationServiceImpl implements VerificationService{
 
         if(!session.canSendNewCode()) throw new VerificationReSendCooldownException();
 
-        session.setCode(UUID.randomUUID().toString().substring(0, 6));
-        session.setAttempts(0);
-
+        session.changeCode(this.generateCode());
         this.verificationRepository.save(session);
+    }
+
+    private String generateCode(){
+        SecureRandom random = new SecureRandom();
+        int number = 100000 + random.nextInt(900000);
+        String code = String.valueOf(number);
+
+        // TODO turn this into a mail sender service
+        System.out.println(code);
+
+        return code;
     }
 }

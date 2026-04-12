@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +31,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class AccountServiceTest {
+    @Value("${server.servlet.session.cookie.name}")
+    private String sessionCookieName;
+
     @Mock private IdentityService identityService;
     @Mock private AccountRepository accountRepository;
     @Mock private AccountMapper accountMapper;
@@ -58,7 +62,7 @@ public class AccountServiceTest {
         when(this.accountMapper.toEntity(this.accountDTO)).thenReturn(account);
         when(this.accountRepository.saveAndFlush(account)).thenReturn(account);
 
-        List<SideEffect> expectedSideEffects = List.of(new SetCookieSideEffect("v-session", "random_value"));
+        List<SideEffect> expectedSideEffects = List.of(new SetCookieSideEffect(this.sessionCookieName, "random_value"));
 
         when(this.identityService.register(account.getId(), this.identityDTO)).thenReturn(expectedSideEffects);
 
@@ -96,7 +100,7 @@ public class AccountServiceTest {
         assertEquals(1, result.size());
         assertInstanceOf(SetCookieSideEffect.class, result.getFirst());
         // Verify the "fake" cookie is returned even though a conflict happened
-        assertEquals("v-session", ((SetCookieSideEffect)result.getFirst()).name());
+        assertEquals(this.sessionCookieName, ((SetCookieSideEffect)result.getFirst()).name());
     }
 
 }

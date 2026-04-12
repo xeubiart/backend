@@ -1,7 +1,9 @@
 package com.xeubiart.verification.exceptions;
 
-public class BadVerificationException extends VerificationException {
+import com.xeubiart.core.exceptions.ApplicationException;
+
+public class BadVerificationException extends ApplicationException {
     public BadVerificationException(String message) {
-        super(message);
+        super(message, "ERR_BAD_VERIFICATION", 400);
     }
 }

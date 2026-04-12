@@ -1,8 +1,7 @@
-package com.xeubiart.account.gRPC;
+package com.xeubiart.account.grpc;
 
-import com.google.protobuf.Empty; // Importe o Empty do Google
+import com.google.protobuf.Empty;
 import com.xeubiart.account.service.AccountService;
-import com.xeubiart.identity.service.IdentityService;
 import com.xeubiart.proto.UserInfoGrpc;
 import com.xeubiart.proto.GetUsernameOutput;
 import com.xeubiart.proto.HasProposalOutput;
@@ -13,15 +12,17 @@ import java.util.UUID;
 
 @GrpcService
 @AllArgsConstructor
-public class AccountGRPC extends UserInfoGrpc.UserInfoImplBase {
+public class AccountGrpcService extends UserInfoGrpc.UserInfoImplBase {
     private final AccountService accountService;
 
     @Override
     public void getUsername(Empty request, StreamObserver<GetUsernameOutput> responseObserver) {
-        // O Interceptor já validou o token e preencheu o contexto!
-        UUID accountId = accountService.getAccountIdFromSession();
+        UUID accountId = accountService.getAccountIdFromSession()
+                .orElseThrow(() -> new RuntimeException("request not contains a valid session token"));
+
         // TODO: implement a name field into account
-        String username = this.accountService.findById(accountId).getEmail();
+        String username = this.accountService.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account not found")).getEmail();
 
         System.out.println("✅ gRPC Auth Success! User ID: " + accountId);
 

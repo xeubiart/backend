@@ -2,6 +2,7 @@ package com.xeubiart.account.service;
 
 import com.xeubiart.account.entity.Account;
 import com.xeubiart.account.exceptions.AccountInvalidCredentialsException;
+import com.xeubiart.account.exceptions.AccountNotFoundException;
 import com.xeubiart.account.mapper.AccountMapper;
 import com.xeubiart.account.model.dto.AccountInputDTO;
 import com.xeubiart.account.model.request.AccountLoginRequest;
@@ -13,48 +14,69 @@ import com.xeubiart.identity.model.dto.IdentityInputDTO;
 import com.xeubiart.identity.service.IdentityService;
 import com.xeubiart.identity.side_effects.SetCookieSideEffect;
 import com.xeubiart.identity.side_effects.SideEffect;
-import jakarta.servlet.http.HttpSession;
+import com.xeubiart.verification.exceptions.BadVerificationException;
+import com.xeubiart.verification.exceptions.VerificationAttemptsExceededException;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.NoTransactionException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@AllArgsConstructor
 public class AccountServiceImpl implements AccountService{
     private final IdentityService identityService;
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
 
+    @Value("${server.servlet.session.cookie.name}")
+    private String sessionCookieName;
+
+    public AccountServiceImpl(IdentityService identityService, AccountRepository accountRepository, AccountMapper accountMapper) {
+        this.identityService = identityService;
+        this.accountRepository = accountRepository;
+        this.accountMapper = accountMapper;
+    }
+
     @Override
     @Transactional
     public List<SideEffect> register(AccountInputDTO accountDTO, IdentityInputDTO identityDTO) throws InvalidProviderException{
-        Account account = this.accountRepository.findByEmail(accountDTO.email())
-            .orElseGet(() -> {
-                Account Account = this.accountMapper.toEntity(accountDTO);
-                return this.accountRepository.saveAndFlush(Account);
-            });
+        Account account = getOrCreateAccount(accountDTO);
 
-        List<SideEffect> sideEffects;
         try {
-            sideEffects = this.identityService.register(account.getId(), identityDTO);
-        } catch (IdentityConflictException ex){
-            // Mark the transaction to roll back
+            return this.identityService.register(account.getId(), identityDTO);
+        } catch (IdentityConflictException ex) {
             try {
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             } catch (NoTransactionException ignored) {
-                // This will happen within @Test, so we can safely ignore it
+                // Only happens during tests or non-transactional contexts
             }
-            // Pretend the register was successful and notify the user that someone tried to register with her email
-            // Override the side effects with a fake one
-            return List.of(new SetCookieSideEffect("v-session", UUID.randomUUID().toString()));
+            // Return "Fake" success to prevent account enumeration attacks
+            return List.of(new SetCookieSideEffect(this.sessionCookieName, UUID.randomUUID().toString()));
         }
-
-        return sideEffects;
+    }
+    private Account getOrCreateAccount(AccountInputDTO dto) {
+        return this.accountRepository.findByEmail(dto.email())
+            .orElseGet(() -> {
+                Account newAccount = this.accountMapper.toEntity(dto);
+                try {
+                    return this.accountRepository.saveAndFlush(newAccount);
+                } catch (DataIntegrityViolationException ex) {
+                    // Another thread won the race
+                    return this.accountRepository.findByEmail(dto.email())
+                        .orElseThrow(() -> new IllegalStateException(
+                            "Account not found after conflict — this should never happen"
+                        ));
+                }
+            });
     }
 
     @Override
@@ -70,22 +92,28 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
-    public boolean verify(String token, String code) {
+    public List<SideEffect> verify(String token, String code) throws VerificationAttemptsExceededException, BadVerificationException {
         return this.identityService.verify(token, code);
     }
 
     @Override
-    public void newCode(String token) {
+    public void resendVerificationCode(String token) {
         this.identityService.newCode(token);
     }
 
     @Override
-    public UUID getAccountIdFromSession() {
-        return this.identityService.getAccountIdFromSession();
+    public Optional<Account> findById(UUID id) {
+        return this.accountRepository.findById(id);
     }
 
     @Override
-    public Account findById(UUID id) {
-        return this.accountRepository.findById(id).orElse(null);
+    public Optional<UUID> getAccountIdFromSession() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
+            return Optional.of(UUID.fromString(auth.getName()));
+        }
+
+        return Optional.empty();
     }
 }

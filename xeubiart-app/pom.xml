@@ -18,6 +18,11 @@
             <artifactId>xeubiart-identity</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.xeubiart</groupId>
+            <artifactId>xeubiart-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

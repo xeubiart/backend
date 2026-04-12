@@ -1,7 +1,10 @@
 package com.xeubiart.identity.exceptions;
 
-public class IdentityConflictException extends IdentityException {
+import com.xeubiart.core.exceptions.ApplicationException;
+
+// TODO may remove it
+public class IdentityConflictException extends ApplicationException {
     public IdentityConflictException(String identifier) {
-        super("Identity already exists: " + identifier);
+        super("Identity already exists: " + identifier, "ERR_IDENTITY_CONFLICT", 409);
     }
 }

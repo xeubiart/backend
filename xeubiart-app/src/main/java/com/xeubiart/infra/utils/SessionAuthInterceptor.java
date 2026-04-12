@@ -1,5 +1,6 @@
 package com.xeubiart.infra.utils;
 
+import com.xeubiart.identity.model.dto.IdentityPrincipal;
 import io.grpc.*;
 import lombok.AllArgsConstructor;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
@@ -22,29 +23,18 @@ public class SessionAuthInterceptor implements ServerInterceptor {
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
         ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
 
-        System.out.println("🔍 Interceptor called: " + call.getMethodDescriptor().getFullMethodName());
-        System.out.println("🔍 All metadata keys: " + headers.keys());
-        System.out.println("🔍 session-id value: " + headers.get(SESSION_KEY));
-
         String rawCookie = headers.get(SESSION_KEY);
 
         if (rawCookie != null) {
-            try {
-                String decodedId = new String(Base64.getDecoder().decode(rawCookie));
-                Session session = sessionRepository.findById(decodedId);
+            String decodedId = new String(Base64.getDecoder().decode(rawCookie));
+            Session session = sessionRepository.findById(decodedId);
 
-                if (session != null) {
-                    SecurityContext context = session.getAttribute("SPRING_SECURITY_CONTEXT");
+            if (session != null) {
+                SecurityContext context = session.getAttribute("SPRING_SECURITY_CONTEXT");
 
-                    if (context != null) {
-                        SecurityContextHolder.setContext(context);
-                        System.out.println("🔍 Interceptor auth: " + context.getAuthentication());
-                        System.out.println("🔍 Interceptor name: " + context.getAuthentication().getName());
-
-                    }
+                if (context != null) {
+                    SecurityContextHolder.setContext(context);
                 }
-            } catch (IllegalArgumentException e) {
-                // invalid base64, skip
             }
         }
 

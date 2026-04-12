@@ -3,6 +3,7 @@ package com.xeubiart.identity.providers.local.service;
 import com.xeubiart.identity.exceptions.IdentityConflictException;
 import com.xeubiart.identity.exceptions.IdentityInvalidCredentialsException;
 import com.xeubiart.identity.model.IdentityType;
+import com.xeubiart.identity.model.dto.IdentityPrincipal;
 import com.xeubiart.identity.providers.IdentityProvider;
 import com.xeubiart.identity.providers.local.entity.IdentityLocal;
 import com.xeubiart.identity.providers.local.mapper.IdentityLocalMapper;
@@ -65,8 +66,13 @@ public class IdentityLocalServiceImpl implements IdentityProvider<IdentityLocalI
             throw new IdentityInvalidCredentialsException();
         }
 
+        IdentityPrincipal identityPrincipal = IdentityPrincipal.builder()
+                .accountId(identityLocal.getAccountId())
+                // .authorities() should be set in the SessionSideEffect resolver
+                .build();
+
         // Change it from the whole LocalIdentity, to a DTO or something
-        return List.of(new SessionSideEffect(identityLocal));
+        return List.of(new SessionSideEffect(identityPrincipal));
     }
 
     @Override
@@ -81,6 +87,12 @@ public class IdentityLocalServiceImpl implements IdentityProvider<IdentityLocalI
                 .orElseThrow(IdentityInvalidCredentialsException::new);
 
         identityLocal.setActive(true);
+    }
+
+    @Override
+    public IdentityLocal getIdentityLocal(UUID accountId) {
+        return this.identityLocalRepository.findByAccountId(accountId)
+                .orElse(null);
     }
 
     @Override
