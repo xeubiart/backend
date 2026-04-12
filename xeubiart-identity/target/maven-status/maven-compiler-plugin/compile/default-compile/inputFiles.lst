@@ -2,10 +2,10 @@ P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\identi
 P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\identity\config\RedisSessionConfig.java
 P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\identity\entity\Identity.java
 P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\identity\exceptions\IdentityConflictException.java
-P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\identity\exceptions\IdentityException.java
 P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\identity\exceptions\IdentityInvalidCredentialsException.java
 P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\identity\exceptions\InvalidProviderException.java
 P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\identity\model\dto\IdentityInputDTO.java
+P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\identity\model\dto\IdentityPrincipal.java
 P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\identity\model\IdentityType.java
 P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\identity\providers\IdentityProvider.java
 P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\identity\providers\local\config\IdentityLocalJacksonConfig.java
@@ -25,8 +25,8 @@ P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\identi
 P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\verification\entity\VerificationSession.java
 P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\verification\exceptions\BadVerificationException.java
 P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\verification\exceptions\VerificationAttemptsExceededException.java
-P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\verification\exceptions\VerificationException.java
 P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\verification\exceptions\VerificationReSendCooldownException.java
+P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\verification\model\dto\VerificationVerifyOutputDTO.java
 P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\verification\repository\VerificationRepository.java
 P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\verification\service\VerificationService.java
 P:\Projects\xeubiart\backend\xeubiart-identity\src\main\java\com\xeubiart\verification\service\VerificationServiceImpl.java
