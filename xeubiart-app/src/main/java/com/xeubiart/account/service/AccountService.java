@@ -1,6 +1,7 @@
 package com.xeubiart.account.service;
 
 import com.xeubiart.account.entity.Account;
+import com.xeubiart.account.model.AccountRole;
 import com.xeubiart.account.model.dto.AccountInputDTO;
 import com.xeubiart.account.model.request.AccountLoginRequest;
 import com.xeubiart.identity.exceptions.IdentityInvalidCredentialsException;
@@ -22,4 +23,6 @@ public interface AccountService {
 
     Optional<UUID> getAccountIdFromSession();
     Optional<Account> findById(UUID id);
+    Optional<Account> findByEmail(String email);
+    Optional<Account> findByEmailAndRole(String email, AccountRole role);
 }

@@ -71,7 +71,6 @@ public class IdentityLocalServiceImpl implements IdentityProvider<IdentityLocalI
                 // .authorities() should be set in the SessionSideEffect resolver
                 .build();
 
-        // Change it from the whole LocalIdentity, to a DTO or something
         return List.of(new SessionSideEffect(identityPrincipal));
     }
 

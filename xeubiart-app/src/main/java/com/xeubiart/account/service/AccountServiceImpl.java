@@ -4,6 +4,7 @@ import com.xeubiart.account.entity.Account;
 import com.xeubiart.account.exceptions.AccountInvalidCredentialsException;
 import com.xeubiart.account.exceptions.AccountNotFoundException;
 import com.xeubiart.account.mapper.AccountMapper;
+import com.xeubiart.account.model.AccountRole;
 import com.xeubiart.account.model.dto.AccountInputDTO;
 import com.xeubiart.account.model.request.AccountLoginRequest;
 import com.xeubiart.account.repository.AccountRepository;
@@ -104,6 +105,16 @@ public class AccountServiceImpl implements AccountService{
     @Override
     public Optional<Account> findById(UUID id) {
         return this.accountRepository.findById(id);
+    }
+
+    @Override
+    public Optional<Account> findByEmail(String email) {
+        return this.accountRepository.findByEmail(email);
+    }
+
+    @Override
+    public Optional<Account> findByEmailAndRole(String email, AccountRole role) {
+        return this.accountRepository.findByEmailAndRole(email, role);
     }
 
     @Override

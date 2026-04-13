@@ -89,7 +89,7 @@ public class IdentityServiceImpl implements IdentityService {
 
         IdentityPrincipal identityPrincipal = IdentityPrincipal.builder()
                 .accountId(identity.getAccountId())
-                // .authorities() should be set in the SessionSideEffect resolver
+                //.authorities() should be set in the SessionSideEffect resolver
                 .build();
 
         return List.of(new DeleteCookieSideEffect(this.verificationCookieName), new SessionSideEffect(identityPrincipal));
