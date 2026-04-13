@@ -22,7 +22,7 @@ public class AccountGrpcService extends UserInfoGrpc.UserInfoImplBase {
 
         // TODO: implement a name field into account
         String username = this.accountService.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Account not found")).getEmail();
+                .orElseThrow(() -> new RuntimeException("Account not found")).getUsername();
 
         System.out.println("✅ gRPC Auth Success! User ID: " + accountId);
 

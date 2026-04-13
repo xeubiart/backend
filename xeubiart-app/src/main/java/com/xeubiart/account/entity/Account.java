@@ -3,6 +3,7 @@ package com.xeubiart.account.entity;
 import com.xeubiart.account.model.AccountRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.util.UUID;
@@ -17,6 +18,9 @@ public class Account {
     @Email
     @NonNull
     private String email;
+
+    @NotBlank
+    private String username;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default

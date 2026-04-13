@@ -6,5 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 public record AccountInputDTO(
     @NotBlank
     @Email
-    String email
+    String email,
+
+    @NotBlank
+    String username
 ){}
